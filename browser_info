@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# adapted by github.com/smashism
+# last updated 2015-03-12
+# lets user get browser versions for updating
+#
+# provided AS IS with no guarantee or warrantee
+#
+
+# Get browser version info
+theChrome=$(defaults read "/Applications/Google Chrome.app/Contents/Info" CFBundleShortVersionString)
+theFox=$(defaults read "/Applications/Firefox.app/Contents/Info" CFBundleShortVersionString)
+theSafari=$(defaults read "/Applications/Safari.app/Contents/Info" CFBundleShortVersionString)
+Silverlight=$(defaults read "/Library/Internet Plug-ins/Silverlight.plugin/Contents/Info" CFBundleShortVersionString)
+
+
+/Library/Application\ Support/JAMF/bin/cocoaDialog.app/Contents/MacOS/cocoaDialog msgbox \
+--title "" --text "Your Browser Versions" \
+--informative-text "Your Firefox version is: $theFox
+Your Chrome version is: $theChrome
+Your Safari version is: $theSafari
+Your Silverlight version is: $Silverlight" --button1 "OK" --quiet
