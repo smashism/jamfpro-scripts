@@ -8,6 +8,8 @@
 #
 # offered AS IS with no warranty or guarantee
 #
+# "If we hit that bullseye, the rest of the dominoes should fall like a house of cards. Checkmate."
+#
 
 IPAddresses=`ifconfig | grep " active" -B3 | grep "inet " | cut -d " " -f2`
 CurrentUser=`who | grep "console" | awk '{print $1}'`
