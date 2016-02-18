@@ -4,8 +4,8 @@
 # last updated 2015-03-12
 # lets user get browser versions for updating
 #
-# provided AS IS with no guarantee or warrantee
-#
+# provided AS IS with no guarantee or warranty
+# "You want the rest of the 'champaggin'?" "No… and it's pronounced 'cham-pain.'"
 
 # Get browser version info
 theChrome=$(defaults read "/Applications/Google Chrome.app/Contents/Info" CFBundleShortVersionString)
