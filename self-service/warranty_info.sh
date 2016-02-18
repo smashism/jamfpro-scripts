@@ -2,7 +2,7 @@
 
 #  warranty_info.sh
 #  
-#  Created by @emilyooo on 9/28/15.
+#  Created by smashism on 9/28/15.
 #
 #  Reads from com.apple.warranty to display warranty information in a cocoaDialog
 #  pop-up box via policy in Self Service
