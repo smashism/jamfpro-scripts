@@ -50,7 +50,7 @@ elif [ "$buttonClicked" == "1" ]; then
     exit 0
 fi
 
-/usr/local/bin/jamf displayMessage -message "REMINDER: This machine will reboot in $timeMinutes minutes. Please save your work and close any open applications."
+/usr/local/bin/jamf displayMessage -message "REMINDER: This machine will reboot in $timeMinutes minute(s). Please save your work and close any open applications."
 
 exit 0		## Success
 exit 1		## Failure
