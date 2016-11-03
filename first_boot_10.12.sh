@@ -313,7 +313,7 @@ fi
 
 defaults write /Library/Preferences/com.apple.timezone.auto "Active" -bool true
 
-# Set timezone
+# Set timezone, run 'sudo systemsetup -listtimezones' in Terminal to get formatting of zone
 
 /usr/sbin/systemsetup -settimezone "America/Chicago"
 
