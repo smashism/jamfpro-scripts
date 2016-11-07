@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # adapted by github.com/smashism
-# last updated 2015-03-12
+# created 2015-03-12
+# updated 2016-11-07 - changed from cocoaDialog to jamfHelper
 # lets user get browser versions for updating
 #
 # provided AS IS with no guarantee or warranty
