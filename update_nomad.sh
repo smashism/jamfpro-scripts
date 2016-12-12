@@ -3,11 +3,12 @@
 ###
 #
 #            Name:  nomad_update.sh
-#     Description:  This script checks for NoMAD.app to be installed, then does the following:
-#                   1- Checks for OS version to run correct launchctl method
-#                   2- Unloads the NoMAD LaunchAgent in the user context
-#                   3- Runs a .pkg installer of the new NoMAD version on second policy with trigger 'update_nomad'
-#                   4- Loads the NoMAD LaunchAgent in the user context to relaunch app
+#     Description:  This script checks that NoMAD.app is installed, then does the following:
+#                   1- Checks for OS version to run correct launchctl method.
+#                   2- Unloads the NoMAD LaunchAgent in the user context.
+#                   3- Runs a .pkg installer of the new NoMAD version on secondary/helper policy 
+# .                    with custom trigger 'update_nomad'.
+#                   4- Loads the NoMAD LaunchAgent in the user context to relaunch app.
 #            Note:  Largely cobbled together from Elliot Jordan's scripts and jamfnation posts.
 #          Author:  Emily Kausalik (drkausalik@gmail.com)
 #         Created:  2016-12-12
