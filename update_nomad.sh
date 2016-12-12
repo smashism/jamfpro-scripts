@@ -7,7 +7,7 @@
 #                   1- Checks for OS version to run correct launchctl method.
 #                   2- Unloads the NoMAD LaunchAgent in the user context.
 #                   3- Runs a .pkg installer of the new NoMAD version on secondary/helper policy 
-# .                    with custom trigger 'update_nomad'.
+#                      with custom trigger 'update_nomad'.
 #                   4- Loads the NoMAD LaunchAgent in the user context to relaunch app.
 #            Note:  Largely cobbled together from Elliot Jordan's scripts and jamfnation posts.
 #          Author:  Emily Kausalik (drkausalik@gmail.com)
