@@ -74,13 +74,13 @@ osvers=$(sw_vers -productVersion | awk -F. '{print $2}')
 
 RunAsRoot()
 {
-        ##  Pass in the full path to the executable as $1
-        if [[ "${USER}" != "root" ]] ; then
-                /bin/echo
-                /bin/echo "***  This application must be run as root.  Please authenticate below.  ***"
-                /bin/echo
-                sudo "${1}" && exit 0
-        fi
+		##  Pass in the full path to the executable as $1
+		if [[ "${USER}" != "root" ]] ; then
+				/bin/echo
+				/bin/echo "***  This application must be run as root.  Please authenticate below.  ***"
+				/bin/echo
+				sudo "${1}" && exit 0
+		fi
 }
 
 RunAsRoot "${0}"
@@ -90,8 +90,8 @@ if [[ "${check4AD}" = "Active Directory" ]]; then
 	/usr/bin/printf "This machine is bound to Active Directory.\nDo you want to unbind this Mac from AD?\n"
 		select yn in "Yes" "No"; do
 			case $yn in
-			    Yes) /usr/sbin/dsconfigad -remove -force -u none -p none; /bin/echo "AD binding has been removed."; break;;
-			    No) /bin/echo "Active Directory binding is still active."; break;;
+				Yes) /usr/sbin/dsconfigad -remove -force -u none -p none; /bin/echo "AD binding has been removed."; break;;
+				No) /bin/echo "Active Directory binding is still active."; break;;
 			esac
 		done
 fi
@@ -105,7 +105,7 @@ until [ "$user" == "FINISHED" ]; do
 			/bin/echo "Finished converting users to local accounts"
 
 			# Installing newest version of NoMAD
-      echo "Installing NoMAD..."
+			echo "Installing NoMAD..."
 			jamf policy -trigger update_nomad >/dev/null # the >/dev/null supresses output of the policy, just to keep things tidy
 
 			# Run recon to detect NoMAD and apply configuration settings
@@ -125,13 +125,13 @@ until [ "$user" == "FINISHED" ]; do
 			# Launch NoMAD using launchctl.
 			echo "Launching NoMAD..."
 			if [[ "$OS_MAJOR" -eq 10 && "$OS_MINOR" -le 9 ]]; then
-    			LOGINWINDOW_PID=$(pgrep -x -u "$USER_ID" loginwindow)
-    			launchctl bsexec "$LOGINWINDOW_PID" open "/Applications/NoMAD.app"
+				LOGINWINDOW_PID=$(pgrep -x -u "$USER_ID" loginwindow)
+				launchctl bsexec "$LOGINWINDOW_PID" open "/Applications/NoMAD.app"
 			elif [[ "$OS_MAJOR" -eq 10 && "$OS_MINOR" -gt 9 ]]; then
-    			launchctl asuser "$USER_ID" open "/Applications/NoMAD.app"
+				launchctl asuser "$USER_ID" open "/Applications/NoMAD.app"
 			else
-    			echo "[ERROR] macOS $OS_MAJOR.$OS_MINOR is not supported."
-    			exit 1004
+				echo "[ERROR] macOS $OS_MAJOR.$OS_MINOR is not supported."
+				exit 1004
 			fi
 			exit 0
 		fi
@@ -139,12 +139,12 @@ until [ "$user" == "FINISHED" ]; do
 	  accounttype=`/usr/bin/dscl . -read /Users/"$netname" AuthenticationAuthority | head -2 | awk -F'/' '{print $2}' | tr -d '\n'`
 			
 		if [[ "$accounttype" = "Active Directory" ]]; then
-		    mobileusercheck=`/usr/bin/dscl . -read /Users/"$netname" AuthenticationAuthority | head -2 | awk -F'/' '{print $1}' | tr -d '\n' | sed 's/^[^:]*: //' | sed s/\;/""/g`
-		    if [[ "$mobileusercheck" = "LocalCachedUser" ]]; then
-			   /usr/bin/printf "$netname has an AD mobile account.\nConverting to a local account with the same username and UID.\n"
+			mobileusercheck=`/usr/bin/dscl . -read /Users/"$netname" AuthenticationAuthority | head -2 | awk -F'/' '{print $1}' | tr -d '\n' | sed 's/^[^:]*: //' | sed s/\;/""/g`
+			if [[ "$mobileusercheck" = "LocalCachedUser" ]]; then
+				/usr/bin/printf "$netname has an AD mobile account.\nConverting to a local account with the same username and UID.\n"
 			else
-			   /usr/bin/printf "The $netname account is not a AD mobile account\n"
-			   break
+				/usr/bin/printf "The $netname account is not a AD mobile account\n"
+				break
 			fi
 		else
 			/usr/bin/printf "The $netname account is not a AD mobile account\n"
@@ -187,17 +187,17 @@ until [ "$user" == "FINISHED" ]; do
 			
 			accounttype=`/usr/bin/dscl . -read /Users/"$netname" AuthenticationAuthority | head -2 | awk -F'/' '{print $2}' | tr -d '\n'`
 			if [[ "$accounttype" = "Active Directory" ]]; then
-			   /usr/bin/printf "Something went wrong with the conversion process.\nThe $netname account is still an AD mobile account.\n"
-			   exit 1
-			 else
-			   /usr/bin/printf "Conversion process was successful.\nThe $netname account is now a local account.\n"
+				/usr/bin/printf "Something went wrong with the conversion process.\nThe $netname account is still an AD mobile account.\n"
+				exit 1
+			else
+				/usr/bin/printf "Conversion process was successful.\nThe $netname account is now a local account.\n"
 			fi
 			
 			homedir=`/usr/bin/dscl . -read /Users/"$netname" NFSHomeDirectory  | awk '{print $2}'`
 			if [[ "$homedir" != "" ]]; then
-			   /bin/echo "Home directory location: $homedir"
-			   /bin/echo "Updating home folder permissions for the $netname account"
-			   /usr/sbin/chown -R "$netname" "$homedir"		
+				/bin/echo "Home directory location: $homedir"
+				/bin/echo "Updating home folder permissions for the $netname account"
+				/usr/sbin/chown -R "$netname" "$homedir"		
 			fi
 			
 			# Add user to the staff group on the Mac
@@ -213,10 +213,10 @@ until [ "$user" == "FINISHED" ]; do
 			
 			/bin/echo "Do you want to give the $netname account admin rights?"
 			select yn in "Yes" "No"; do
-    				case $yn in
-        				Yes) /usr/sbin/dseditgroup -o edit -a "$netname" -t user admin; /bin/echo "Admin rights given to this account"; break;;
-        				No ) /bin/echo "No admin rights given"; break;;
-    				esac
+				case $yn in
+						Yes) /usr/sbin/dseditgroup -o edit -a "$netname" -t user admin; /bin/echo "Admin rights given to this account"; break;;
+						No ) /bin/echo "No admin rights given"; break;;
+					esac
 			done
 			break
 	done
