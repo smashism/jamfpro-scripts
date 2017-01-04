@@ -1,17 +1,3 @@
-#!/bin/bash
-
-###
-#
-#            Name:  migrate_ad_account_to_local_account.sh
-#     Description:  This is simply a minor update to the script of the same name by Rich
-#                   Trouton (github.com/rtrouton). I added an additional component to install
-#                   NoMAD once the account has migrated. Recon with no output was added, 
-#                   followed by a short pause, to allow the machine to fall into the correct 
-#                   smart group in the JSS to apply a configuration profile.
-#   Last Modified:  2017-01-04
-#
-###
-
 # Modified 12/27/2016
 Version=1.1
 # Original source is from MigrateUserHomeToDomainAcct.sh
@@ -105,7 +91,7 @@ until [ "$user" == "FINISHED" ]; do
 			/bin/echo "Finished converting users to local accounts"
 
 			# Installing newest version of NoMAD
-            echo "Installing NoMAD..."
+      echo "Installing NoMAD..."
 			jamf policy -trigger update_nomad >/dev/null # the >/dev/null supresses output of the policy, just to keep things tidy
 
 			# Run recon to detect NoMAD and apply configuration settings
@@ -114,7 +100,7 @@ until [ "$user" == "FINISHED" ]; do
 
 			# Give the JSS a chance to apply the configuration settings
 			echo "Applying NoMAD settings..."
-			sleep 20
+			sleep 10
 
 			# Get current user and OS information.
 			CURRENT_USER=$(/usr/bin/stat -f%Su /dev/console)
