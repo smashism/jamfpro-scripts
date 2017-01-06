@@ -41,6 +41,9 @@ else
     exit 1004
 fi
 
+# Making sure application is closed
+osascript -e "tell application \"NoMAD\" to quit" # potentially redundant, but meant to prevent duplicate processes from running
+
 # Installing newest version of NoMAD
 echo "Installing newest version of NoMAD..."
 jamf policy -trigger update_nomad # change this to whatever custom trigger you use for the installer policy
