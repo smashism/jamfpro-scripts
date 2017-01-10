@@ -25,7 +25,7 @@ if grep -q "Encryption in progress" <<< "$FV_STATUS"; then
 	echo "$FV_STATUS"
 	/usr/bin/osascript -e 'display dialog "Encryption Status: '"${FV_STATUS//\"/\\\"}"'
 
-If you have any questions or need additional assistance please email helpdesk@rmn.com." buttons {"OK"} default button 1 with title "'"${dialogTitle//\"/\\\"}"'" giving up after 60 with icon file "'"${LOGO_ICNS//\"/\\\"}"'"'
+If you have any questions or need additional assistance please email helpdesk@company.com." buttons {"OK"} default button 1 with title "'"${dialogTitle//\"/\\\"}"'" giving up after 60 with icon file "'"${LOGO_ICNS//\"/\\\"}"'"'
 elif grep -q "FileVault is Off" <<< "$FV_STATUS"; then
 	echo "Encryption is not active."
 	echo "$FV_STATUS"
