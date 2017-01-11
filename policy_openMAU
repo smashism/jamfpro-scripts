@@ -1,0 +1,34 @@
+#!/bin/bash
+
+###
+#
+#            Name:  policy_openMAU.sh
+#     Description:  Scenario:
+#                   The Office Suite is installed on all Macs at an organization, but some 
+#                   folks don't use it that often. Even if AutomaticDownload is enforced,
+#                   MAU won't run unless the Daemon is active. This script checks to make sure
+#                   the app is installed, then uses AppleScript to open the application
+#                   and hit the return key to trigger the "Check for Updates" button.
+#            Note:  This is still in testing and development. Use with caution.
+#          Author:  Dr. Emily Kausalik (drkausalik@gmail.com)
+#         Created:  2017-01-11
+#   Last Modified:  2017-01-11
+#
+###
+
+# Make sure app exists.
+echo "Making sure Microsoft AutoUpdate is installed..."
+if [[ ! -d "/Library/Application Support/Microsoft/MAU2.0/Microsoft AutoUpdate.app" ]]; then
+    echo "[ERROR] Microsoft AutoUpdate.app does not exist."
+    exit 1002
+fi
+
+# Open MAU with AppleScript, then hit the return key to trigger a "Check for Updates"
+/usr/bin/osascript <<EOT
+	activate application "Microsoft AutoUpdate"
+	tell application "System Events" to tell process "Microsoft AutoUpdate"
+		keystroke return
+	end tell
+EOT
+
+exit 0
