@@ -41,6 +41,9 @@ else
     exit 1004
 fi
 
+# Really make sure NoMAD is closed.
+killall NoMAD
+
 # Making sure application is closed
 osascript -e "tell application \"NoMAD\" to quit" # potentially redundant, but meant to prevent duplicate processes from running
 
