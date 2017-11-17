@@ -17,7 +17,7 @@
 
 # Items at the system level to be removed
 systemItems=(
-	/Applications/Box\ Sync.app
+  /Applications/Box\ Sync.app
   /Library/PrivilegedHelperTools/com.box.sync.iconhelper
   /Library/PrivilegedHelperTools/com.box.sync.bootstrapper
   /private/var/db/receipts/com.box.pkg.boxsync.bom
@@ -26,8 +26,8 @@ systemItems=(
 
 # Items at the user level to be removed
 userItems=(
-	Library/Logs/Box/Box\ Sync/
-	Library/Box\ Sync/
+  Library/Logs/Box/Box\ Sync/
+  Library/Box\ Sync/
   Library/Application\ Support/Box/Box\ Sync/
 )
 
