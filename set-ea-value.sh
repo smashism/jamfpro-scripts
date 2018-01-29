@@ -18,9 +18,9 @@
 jamfserver="$4" #set server URL in parameter 4
 APIauth=$(openssl enc -base64 -d <<< "$5") #set encoded username:password in parameter 5
 getudid=$(system_profiler SPHardwareDataType | grep UUID | awk '{print $3}')
-eaID="$6" #dev
-eaName="$7"
-value="$8"
+eaID="$6" #set EA ID in parameter 6
+eaName="$7" #set EA Name in parameter 7
+value="$8" #set desired EA value in paramter 8
 
 # Submit unmanage payload to the Jamf Pro Server
 curl -k -s -u "$APIauth" -X "PUT" "https://$jamfserver:8443/JSSResource/computers/udid/$getudid/subset/extension_attributes" \
