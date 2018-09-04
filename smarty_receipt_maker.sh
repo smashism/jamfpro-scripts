@@ -13,7 +13,8 @@
 #                     for a date-based EA
 #            Note:  Jamf will write the plist with root priviledges, and will also read
 #                   with root priviledges when running an EA check during recon. To read
-#                   the plist locally (in terminal) use sudo.
+#                   the plist locally (in terminal) use sudo. See line 34 for optional
+#                   commands to adjust permissions for easier reading.
 #          Author:  Emily Kausalik
 #         Created:  2016-12-30
 #   Last Modified:  2018-09-04
@@ -30,6 +31,10 @@ currentDate=$(date +"%Y-%m-%d %H:%M:%S") # Creates date in format Jamf can use f
 /usr/bin/defaults write $plistPath/$plistName Name "$nameString" # Double-duty: will make plist if doesn't exist, then write the value!
 /bin/echo "Writing $currentDate to $plistPath/$plistName"
 /usr/bin/defaults write $plistPath/$plistName Date "$currentDate" # Date can be used in Jamf EA with "Date" data type.
+
+# Optional: remove comment-out on the next two lines to make the plist more reasily readable by non-root users
+#/bin/echo "Making $plistName readible to non-root users"
+#/bin/chmod 744 $plistPath/$plistName
 
 # Dosvedanya, comrade!
 
