@@ -22,7 +22,9 @@ eaID="$6" #set EA ID in parameter 6
 eaName="$7" #set EA Name in parameter 7
 value="$8" #set desired EA value in paramter 8
 
-# Submit unmanage payload to the Jamf Pro Server
+# Submit EA update to the Jamf Pro Server. Note, this will show the computer record as having
+# completed a recon at the time of submission.
+
 curl -k -s -u "$APIauth" -X "PUT" "https://$jamfserver:8443/JSSResource/computers/udid/$getudid/subset/extension_attributes" \
       -H "Content-Type: application/xml" \
       -H "Accept: application/xml" \
