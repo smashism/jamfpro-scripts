@@ -103,6 +103,12 @@
 #   * use "which jamf" to determine jamf version in line 127
 #   * call jamf variable rather than specific path in line 200
 #
+# Version: 1.2
+# - Updated by Joe Selway (Oct 7, 2019) to include
+#   * the optional parameters added by Blake Suggett on October 24, 2018. 
+#   > https://www.jamf.com/jamf-nation/third-party-products/files/1008/installpkgfromdmg-updated-with-additional-optional-parameters
+#   * quoting to handle spaces in .pkg name
+#
 ####################################################################################################
 #
 # DEFINE VARIABLES & READ IN PARAMETERS
@@ -122,6 +128,10 @@ logFile="/private/var/log/installPKGfromDMG.log"
 
 # Variables used by this script.
 dmgName=""
+forcesuccessflag="" # Optional
+useinstallerapp="" # Optional
+allowUntrusted="" # Optional
+applyChoiceChangesXMLFile="" # Optional
 
 # Figure out the correct jamf agent
 jamf=$(which jamf)
@@ -143,6 +153,21 @@ if [ "$4" != "" ] && [ "$dmgName" == "" ]; then
     dmgName="$4"
 fi
 
+if [ "$5" != "" ] && [ "$forcesuccessflag" == "" ]; then
+    forcesuccessflag="$5"
+fi
+
+if [ "$6" != "" ] && [ "$useinstallerapp" == "" ]; then
+    useinstallerapp="$6"
+fi
+
+if [ "$7" != "" ] && [ "$allowUntrusted" == "" ]; then
+    allowUntrusted="$7"
+fi
+
+if [ "$8" != "" ] && [ "$applyChoiceChangesXMLFile" == "" ]; then
+    applyChoiceChangesXMLFile="$8"
+fi
 
 ####################################################################################################
 #
@@ -180,34 +205,179 @@ fi
 # Verify Variables
 verifyVariable dmgName
 
+if [[ "$forcesuccessflag" = "YES" ]]; then
+	log "Variable \"forcesuccessflag\" to JSS explicitly declared...: $forcesuccessflag"
+elif [[ "$forcesuccessflag" != "YES" ]]; then
+	log "Variable \"forcesuccessflag\" to JSS not explicitly declared, defaulting to No..."
+fi
+
+if [[ "$useinstallerapp" = "YES" ]]; then
+	log "Variable \"useinstallerapp\" explicitly declared...: $useinstallerapp"
+elif [[ "$useinstallerapp" != "YES" ]]; then
+	log "Variable \"useinstallerapp\" not explicitly declared, defaulting to jamf binary"
+fi
+
+if [[ "$useinstallerapp" = "YES" && "$allowUntrusted" = "YES" ]]; then
+	log "Variable \"allowUntrusted\" explicitly declared...: $allowUntrusted"
+elif [[ "$useinstallerapp" = "YES" && "$allowUntrusted" != "YES" ]]; then
+    log "Variable \"allowUntrusted\" not explicitly declared, expired certificates within the installer will prevent installation..."
+fi
+
+if [[ "$useinstallerapp" = "YES" && ! -z "$applyChoiceChangesXMLFile" ]]; then
+	log "Variable \"applyChoiceChangesXMLFile\" declared...: $applyChoiceChangesXMLFile"
+elif [[ "$useinstallerapp" = "YES" && -z "$applyChoiceChangesXMLFile" ]]; then
+    log "Variable \"applyChoiceChangesXMLFile\" not declared, No answer file will be provided to the pkg..."
+fi
+
+# Attempt to remove any existing mounts
+UnmountDMGNameOnly=`echo $dmgName | sed 's/.dmg*//'`
+if [[ -d /Volumes/$UnmountDMGNameOnly ]] ; then
+    log "Found an exiting mounted DMG, unmounting..."
+    hdiutil detach /Volumes/$UnmountDMGNameOnly -force
+fi
+if [[ -f /Library/Application\ Support/JAMF/Waiting\ Room/$dmgName.shadow ]] ; then
+    log "Found an exiting shadow file, removing..."
+    rm -f /Library/Application\ Support/JAMF/Waiting\ Room/$dmgName.shadow
+fi
+
 # Mount the DMG
 log "Mounting the DMG $dmgName..."
+# mountResult
 mountResult=`/usr/bin/hdiutil mount -private -noautoopen -noverify /Library/Application\ Support/JAMF/Waiting\ Room/$dmgName -shadow`
+mountResultExitCode=($?)
+# mountVolume
 mountVolume=`echo "$mountResult" | grep Volumes | awk '{print $3}'`
+mountVolumeExitCode=($?)
+# mountDevice
 mountDevice=`echo "$mountResult" | grep disk | head -1 | awk '{print $1}'`
+mountDeviceExitCode=($?)
 
-if [ $? == 0 ]; then
-	log " DMG mounted successfully as volume $mountVolume on device $mountDevice."
-else
-	log "There was an error mounting the DMG. Exit Code: $?"
+# Check DMG mount parameters are ok
+if [[ $mountResultExitCode == 0 ]] && [[ $mountVolumeExitCode == 0 ]] && [[ $mountDeviceExitCode == 0 ]] ; then
+	log "DMG mounted successfully as volume $mountVolume on device $mountDevice."
+elif [[ $mountResultExitCode != 0 ]] ; then
+    log "$mountResult"
+	log "There was an error mounting the DMG. mountResult hdiutil exit code: $mountResultExitCode"
+	exit 1
+elif [[ $mountVolumeExitCode != 0 ]] ; then
+    log "$mountVolume"
+    log "There was an error mounting the DMG. mountVolume grep volume exit code: $mountVolumeExitCode"
+    exit 1
+elif [[ $mountDeviceExitCode != 0 ]] ; then
+    log "$mountDevice"
+    log "There was an error mounting the DMG. mountDevice grep disk exit code: $mountDeviceExitCode"
+    exit 1
 fi
 
 # Find the PKG in the DMG
 packageName=`ls $mountVolume | grep "pkg"`
-
-# Install the PKG wrapped inside the DMG
-log "Installing Package $packageName from mount path $mountVolume..."
-"$jamf" install -path $mountVolume -package $packageName
-
-if [ $? == 0 ]; then
-	log " Package successfully installed."
-else
-	log "There was an error installing the package. Exit Code: $?"
+if [[ -z "$packageName" ]] ; then
+	packageName=`ls $mountVolume | grep "mpkg"`
 fi
 
-# Unmount the DMG
-echo "Unmounting disk $mountDevice..."
-hdiutil detach "$mountDevice" -force
+# Install the PKG wrapped inside the DMG
+if [[ "$useinstallerapp" = "YES" && "$allowUntrusted" = "YES" && ! -z "$applyChoiceChangesXMLFile" ]]; then
+    log "Installing Package $packageName from mount path $mountVolume..."
+    log "Script install string...: installer -pkg $mountVolume/"$packageName" -target / -allowUntrusted -applyChoiceChangesXML $mountVolume/$applyChoiceChangesXMLFile"
+    installer -pkg $mountVolume/"$packageName" -target / -allowUntrusted -applyChoiceChangesXML $mountVolume/$applyChoiceChangesXMLFile
+    PKGExitCode=($?)
+elif [[ "$useinstallerapp" = "YES" && "$allowUntrusted" = "YES" && -z "$applyChoiceChangesXMLFile" ]]; then
+    log "Installing Package $packageName from mount path $mountVolume..."
+    log "Script install string...: installer -pkg $mountVolume/"$packageName" -target / -allowUntrusted"
+    installer -pkg $mountVolume/"$packageName" -target / -allowUntrusted
+    PKGExitCode=($?)
+elif [[ "$useinstallerapp" = "YES" && "$allowUntrusted" != "YES" && ! -z "$applyChoiceChangesXMLFile" ]]; then
+    log "Installing Package $packageName from mount path $mountVolume..."
+    log "Script install string...: installer -pkg $mountVolume/"$packageName" -target / -applyChoiceChangesXML $mountVolume/$applyChoiceChangesXMLFile"
+    installer -pkg $mountVolume/"$packageName" -target / -applyChoiceChangesXML $mountVolume/$applyChoiceChangesXMLFile
+    PKGExitCode=($?)
+elif [[ "$useinstallerapp" = "YES" ]]; then
+    log "Installing Package $packageName from mount path $mountVolume..."
+    log "Script install string...: installer -pkg $mountVolume/"$packageName" -target /"
+    installer -pkg $mountVolume/"$packageName" -target /
+    PKGExitCode=($?)
+elif [[ "$useinstallerapp" != "YES" ]]; then
+    log "Installing Package $packageName from mount path $mountVolume..."
+    log "Script install string...: jamf install -path $mountVolume -package $packageName"
+    /usr/local/jamf/bin/jamf install -path $mountVolume -package $packageName
+    PKGExitCode=($?)
+fi
 
-# Delete the DMG
-/bin/rm /Library/Application\ Support/JAMF/Waiting\ Room/$dmgName
+if [ "$5" == "YES" ]; then
+    log "PKG exit code was: $PKGExitCode"
+	log "Exit code 0 was passed to JSS"
+	log "Successfully installed"
+
+	# Unmount the DMG
+    log "Unmounting disk $mountDevice..."
+    hdiutil detach "$mountDevice" -force
+    UnmountDMGExitCode=($?)
+    
+    # If unmount failed attempt unmount using the volumes directory path
+    if [ $UnmountDMGExitCode != 0 ] ; then
+        log "Unable to unmount using native mountDevice... Attempting volumes unmount..."
+        hdiutil detach /Volumes/$UnmountDMGNameOnly -force
+        UnmountDMGExitCode=($?)
+    fi
+
+    if [ $UnmountDMGExitCode == 0 ] ; then
+        log "Successfully unmounted"
+    fi
+    
+    # Delete the DMG
+    /bin/rm /Library/Application\ Support/JAMF/Waiting\ Room/$dmgName
+
+    exit 0
+
+elif [ "$PKGExitCode" == 0 ]; then
+	log "PKG exit code was: $PKGExitCode"
+	log "Exit code $PKGExitCode was passed to JSS"
+	log "Successfully installed"
+	
+	# Unmount the DMG
+    log "Unmounting disk $mountDevice..."
+    hdiutil detach "$mountDevice" -force
+    UnmountDMGExitCode=($?)
+    
+    # If unmount failed attempt unmount using the volumes directory path
+    if [ $UnmountDMGExitCode != 0 ] ; then
+        log "Unable to unmount using native mountDevice... Attempting volumes unmount..."
+        hdiutil detach /Volumes/$UnmountDMGNameOnly -force
+        UnmountDMGExitCode=($?)
+    fi
+
+    if [ $UnmountDMGExitCode == 0 ] ; then
+        log "Successfully unmounted"
+    fi
+
+    # Delete the DMG
+    /bin/rm /Library/Application\ Support/JAMF/Waiting\ Room/$dmgName
+
+    exit 0
+
+else
+    log "PKG exit code was...: $PKGExitCode"
+    log "Exit code $PKGExitCode was passed to JSS"
+    log "Failed installation"
+
+	# Unmount the DMG
+    log "Unmounting disk $mountDevice..."
+    hdiutil detach "$mountDevice" -force
+    UnmountDMGExitCode=($?)
+    
+    # If unmount failed attempt unmount using the volumes directory path
+    if [ $UnmountDMGExitCode != 0 ] ; then
+        log "Unable to unmount using native mountDevice... Attempting volumes unmount..."
+        hdiutil detach /Volumes/$UnmountDMGNameOnly -force
+        UnmountDMGExitCode=($?)
+    fi
+
+    if [ $UnmountDMGExitCode == 0 ] ; then
+        log "Successfully unmounted"
+    fi
+
+    # Delete the DMG
+    /bin/rm /Library/Application\ Support/JAMF/Waiting\ Room/$dmgName
+
+    exit 1
+fi
