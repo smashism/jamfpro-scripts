@@ -104,9 +104,10 @@
 #   * call jamf variable rather than specific path in line 200
 #
 # Version: 1.1.1
-# - Updated by Joe Selway (Oct 7, 2019) to include the optinal parameters added by Blake Suggett on 
-#	October 24, 2018. Source: https://www.jamf.com/jamf-nation/third-party-products/files/1008…
-#  							 …/installpkgfromdmg-updated-with-additional-optional-parameters
+# - Updated by Joe Selway (Oct 7, 2019) to include
+#   * the optional parameters added by Blake Suggett on October 24, 2018. 
+#   > https://www.jamf.com/jamf-nation/third-party-products/files/1008/installpkgfromdmg-updated-with-additional-optional-parameters
+#   * quoting to handle spaces in .pkg name
 #
 ####################################################################################################
 #
