@@ -12,6 +12,7 @@
 #                   script easly reusable.
 #          Author:  Emily Kausalik
 #         Created:  2018-01-29
+#         Updated:  2021-04-29
 #
 ###
 
@@ -25,7 +26,7 @@ value="$8" #set desired EA value in paramter 8
 # Submit EA update to the Jamf Pro Server. Note, this will show the computer record as having
 # completed a recon at the time of submission.
 
-curl -k -s -u "$APIauth" -X "PUT" "https://$jamfserver:8443/JSSResource/computers/udid/$getudid/subset/extension_attributes" \
+curl -k -s -u "$APIauth" -X "PUT" "https://$jamfserver/JSSResource/computers/udid/$getudid/subset/extension_attributes" \
       -H "Content-Type: application/xml" \
       -H "Accept: application/xml" \
       -d "<computer><extension_attributes><extension_attribute><id>$eaID</id><name>$eaName</name><type>String</type><value>$value</value></extension_attribute></extension_attributes></computer>"
