@@ -2,19 +2,17 @@
 
 ###
 #
-#            Name:  set_computerName.sh
+#            Name:  set_computername-user.sh
 #     Description:  This script is designed to set a computer name during DEP enrollment as follows:
 #                   1- Get logged-in username
 #                   2- Format the computer name as $username-mac
 #                   3- Set computer name/hostname/local hostname and NetBIOSName using formatted name
 #                   4- To be overly thorough, use jamf setcomputername to set name as well
 #            Note:  Works best for 1x1 laptop deployments where only one person typically signs into the laptop. 
-#          Author:  Emily Kausalik (drkausalik@gmail.com)
+#          Author:  github/smashism
 #         Created:  2017-05-30
-#   Last Modified:  2017-05-30
+#   Last Modified:  2025-10-28
 #
-#         Version:  1.0
-#                   - Initial commit
 #
 ###
 
